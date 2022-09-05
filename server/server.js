@@ -9,13 +9,28 @@ app.use(express.static(__dirname + '/www'));
 // use bodyparser
 app.use(express.json());
 
-var cors = require('cors');
-app.use(cors());
+
 
 const bodyParser = require("body-parser");
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(bodyParser.json());
 
+const io = require('socket.io')(http,{
+    cors: {
+        origin: 'http://localhost:4200',
+        methods: ['GET','POST'],
+    }
+});
+
+const sockets = require('./socket.js');
+const server = require('./listen.js');
+const PORT = 3000;
+
+var cors = require('cors');
+app.use(cors());
+
+sockets.connect(io,PORT);
+server.listen(http, PORT);
 
 //route for check inputs
 app.post('/api/login', (req,res)=>{
@@ -61,10 +76,10 @@ app.post('/api/login', (req,res)=>{
     res.send(customer);
 });
 
-// start server listening
-let server = http.listen(3000, function () {
-    let host = server.address().address;
-    let port = server.address().port;
-    console.log("My First Nodejs Server!");
-    console.log("Server listening on: "+ host + " port: " + port);
-});
+// // start server listening
+// let server = http.listen(3000, function () {
+//     let host = server.address().address;
+//     let port = server.address().port;
+//     console.log("My First Nodejs Server!");
+//     console.log("Server listening on: "+ host + " port: " + port);
+// });

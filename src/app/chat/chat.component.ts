@@ -1,4 +1,7 @@
 import { Component, OnInit } from '@angular/core';
+import* as io from 'socket.io-client';
+import { SocketService } from '../services/socket.service';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-chat',
@@ -6,17 +9,35 @@ import { Component, OnInit } from '@angular/core';
   styleUrls: ['./chat.component.css']
 })
 export class ChatComponent implements OnInit {
-  message: string = '';
+  messagecontent  : string = '';
   errorMassage: string = '';
-  chats = [
-    {'user':'dican', 'message': 'first post'},
-  ];
-  constructor() { }
+  messages:string[] = [];
+
+  ioConnection:any;
+
+  constructor(private socketService:SocketService){}
+  // constructor() { 
+  //   this.socket = io(this.url);
+  //   this.socket.on('new-messages':m=>{alert(m);});
+  // }
 
   ngOnInit(): void {
+    this.initIoConnection();
+  }
+  private initIoConnection(){
+    this.socketService.initSocket();
+    this.ioConnection = this.socketService.getMessage()
+      .subscribe((message:any)=>{
+      this.messages.push(message);
+    });
   }
 
-  post(){
-
+  chat(){
+    if(this.messagecontent){
+      this.socketService.send(this.messagecontent);
+      this.messagecontent = '';
+    }else{
+      console.log('no message');
+    }
   }
 }
